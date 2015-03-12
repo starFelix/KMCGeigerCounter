@@ -9,7 +9,7 @@
 #import "KMCGeigerCounter.h"
 #import <QuartzCore/QuartzCore.h>
 #import <AudioToolbox/AudioToolbox.h>
-#import <SpriteKit/SpriteKit.h>
+//#import <SpriteKit/SpriteKit.h>
 
 static NSInteger const kHardwareFramesPerSecond = 60;
 static NSTimeInterval const kNormalFrameDuration = 1.0 / kHardwareFramesPerSecond;
@@ -26,7 +26,7 @@ static NSTimeInterval const kNormalFrameDuration = 1.0 / kHardwareFramesPerSecon
 @property (nonatomic, strong) UIColor *meterGoodColor;
 @property (nonatomic, strong) UIColor *meterBadColor;
 
-@property (nonatomic, strong) SKView *sceneView;
+@property (nonatomic, strong) UIView *sceneView;
 
 @property (nonatomic, strong) CADisplayLink *displayLink;
 @property (nonatomic, assign) SystemSoundID tickSoundID;
@@ -132,11 +132,13 @@ static NSTimeInterval const kNormalFrameDuration = 1.0 / kHardwareFramesPerSecon
     // between frames, then the framerate can drop without CADisplayLink detecting it.
     // Therefore, put an empty 1pt x 1pt SKView in the window. It shouldn't interfere with the framerate, but
     // should cause the CADisplayLink callbacks to match the timing of drawing.
-    SKScene *scene = [SKScene new];
-    self.sceneView = [[SKView alloc] initWithFrame:CGRectMake(0.0, 0.0, 1.0, 1.0)];
-    [self.sceneView presentScene:scene];
+    if ([[[UIDevice currentDevice]systemVersion] floatValue]>=7.0) {
+        id scene = [[NSClassFromString(@"SKScene") alloc] init];
+        self.sceneView = [[NSClassFromString(@"SKView") alloc] initWithFrame:CGRectMake(0.0, 0.0, 1.0, 1.0)];
+        [self.sceneView performSelector:@selector(presentScene:) withObject:scene];
+        [[UIApplication sharedApplication].keyWindow addSubview:self.sceneView];
+    }
 
-    [[UIApplication sharedApplication].keyWindow addSubview:self.sceneView];
 }
 
 - (void)stop
